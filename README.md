@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/wix/zone.png)](http://travis-ci.org/wix/zone)
+[![Build Status](https://secure.travis-ci.org/marthag8/zone.png)](http://travis-ci.org/marthag8/zone)
 
 Description
 ===========
