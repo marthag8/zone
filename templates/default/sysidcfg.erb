@@ -1,14 +1,14 @@
 system_locale=C
-timezone=<%= node[:zone][:timezone] %>
+timezone=<%= node['zone']['timezone'] %>
 terminal=xterms
 security_policy=NONE
 root_password=<%= @zone.password %>
-timeserver=<%= node[:zone][:timeserver] %>
-name_service=DNS {domain_name=<%= node[:domain] %>
-       name_server=<%= node[:zone][:dns_servers].join(',') %>}
-network_interface=primary { hostname=<%= @zone.name %>.<%= node[:domain] %>
+timeserver=<%= node['zone']['timeserver'] %>
+name_service=DNS {domain_name=<%= node['domain'] %>
+       name_server=<%= node['zone']['dns_servers'].join(',') %>}
+network_interface=primary { hostname=<%= @zone.name %>.<%= node['domain'] %>
        ip_address=<%= @zone.desired_props["net"].first.split(/:|\//).first %>
-       netmask=<%= node[:network][:interfaces][@zone.desired_props["net"].first.split(':')[1]][:addresses][node[:network][:interfaces][@zone.desired_props["net"].first.split(':')[1]][:addresses].to_hash.keys.select{|k| k =~ /\d+.\d+.\d+.\d+/}.first][:netmask] %>
+       netmask=<%= node['network']['interfaces'][@zone.desired_props["net"].first.split(':')[1]]['addresses'][node['network']['interfaces'][@zone.desired_props["net"].first.split(':')[1]]['addresses'].to_hash.keys.select{|k| k =~ /\d+.\d+.\d+.\d+/}.first]['netmask'] %>
        protocol_ipv6=no
-       default_route=<%= node[:network][:default_gateway] %>}
+       default_route=<%= node['network']['default_gateway'] %>}
 nfs4_domain=dynamic

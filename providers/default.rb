@@ -20,14 +20,14 @@ def load_current_resource
   @zone.desired_props(desired_props?)
 end
 
-action :configure do
+action :configure do # ~FC017
   unless created?
     do_create
   end
   do_configure
 end
 
-action :install do
+action :install do # ~FC017
   action_configure
   unless installed?
     do_install
@@ -41,27 +41,27 @@ action :install do
   end  
 end
 
-action :start do
+action :start do # ~FC017
   action_install
   unless running?
     do_boot
   end
 end
 
-action :delete do
+action :delete do # ~FC017
   action_stop
   if created?
     do_delete
   end
 end
 
-action :stop do
+action :stop do # ~FC017
   if running?
     do_halt
   end
 end
 
-action :uninstall do
+action :uninstall do # ~FC017
   action_stop
   if installed?
     do_uninstall
@@ -169,7 +169,7 @@ def do_configure
   @managed_props.each do |prop|
     unless @zone.current_props[prop] == @zone.desired_props[prop]
       Chef::Log.info("Setting #{prop} to #{@zone.desired_props[prop]} for zone #{@zone.name}")
-      system("zonecfg -z  #{@zone.name} \"set #{prop}=#{@zone.desired_props[prop]}\"")
+      shell_out!("zonecfg -z  #{@zone.name} \"set #{prop}=#{@zone.desired_props[prop]}\"")
       new_resource.updated_by_last_action(true)
     end
   end
@@ -190,9 +190,9 @@ def do_configure
         Chef::Log.info("Removing #{prop} #{value} from zone #{@zone.name}")
         if prop == "net"
           net_array = value.split(':')
-          system("zonecfg -z #{@zone.name} \"remove #{prop} #{name_string}=#{net_array[0]}\"")
+          shell_out!("zonecfg -z #{@zone.name} \"remove #{prop} #{name_string}=#{net_array[0]}\"")
         else
-          system("zonecfg -z #{@zone.name} \"remove #{prop} #{name_string}=#{value}\"")
+          shell_out!("zonecfg -z #{@zone.name} \"remove #{prop} #{name_string}=#{value}\"")
         end
         new_resource.updated_by_last_action(true)
       end
@@ -201,9 +201,9 @@ def do_configure
         Chef::Log.info("Adding #{prop} #{value} to zone #{@zone.name}")
         if prop == "net"
           net_array = value.split(':')
-          system("zonecfg -z  #{@zone.name} \"add #{prop}; set #{name_string}=#{net_array[0]};set physical=#{net_array[1]};#{net_array[2].nil? ? "" : "set defrouter="+net_array[2]+";"}end\"")
+          shell_out!("zonecfg -z  #{@zone.name} \"add #{prop}; set #{name_string}=#{net_array[0]};set physical=#{net_array[1]};#{net_array[2].nil? ? "" : "set defrouter="+net_array[2]+";"}end\"")
         else
-          system("zonecfg -z  #{@zone.name} \"add #{prop}; set #{name_string}=#{value};end\"")
+          shell_out!("zonecfg -z  #{@zone.name} \"add #{prop}; set #{name_string}=#{value};end\"")
         end
         new_resource.updated_by_last_action(true)
       end
@@ -213,7 +213,7 @@ end
 
 def do_create
   Chef::Log.info("Configuring zone #{@zone.name}")
-  system("zonecfg -z #{@zone.name} \"create;set zonepath=#{@zone.desired_props["zonepath"]};commit\"")
+  shell_out!("zonecfg -z #{@zone.name} \"create;set zonepath=#{@zone.desired_props["zonepath"]};commit\"")
   new_resource.updated_by_last_action(true)
   
   # update properties for new zone
@@ -224,11 +224,11 @@ end
 def do_install
   if @zone.clone.nil?
     Chef::Log.info("Installing zone #{@zone.name}")
-    system("zoneadm -z #{@zone.name} install")
+    shell_out!("zoneadm -z #{@zone.name} install")
     new_resource.updated_by_last_action(true)
   else
     Chef::Log.info("Cloning zone #{@zone.name} from #{@zone.clone}")
-    system("zoneadm -z #{@zone.name} clone #{@zone.clone}")
+    shell_out!("zoneadm -z #{@zone.name} clone #{@zone.clone}")
     new_resource.updated_by_last_action(true)
   end
   
@@ -239,24 +239,24 @@ end
 
 def do_boot
   Chef::Log.info("Booting zone #{@zone.name}")
-  system("zoneadm -z #{@zone.name} boot")
+  shell_out!("zoneadm -z #{@zone.name} boot")
   new_resource.updated_by_last_action(true)
 end
 
 def do_delete
   Chef::Log.info("Deleting zone #{@zone.name}")
-  system("zonecfg -z #{@zone.name} delete -F")
+  shell_out!("zonecfg -z #{@zone.name} delete -F")
   new_resource.updated_by_last_action(true)
 end
 
 def do_halt
   Chef::Log.info("Halting zone #{@zone.name}")
-  system("zoneadm -z #{@zone.name} halt")
+  shell_out!("zoneadm -z #{@zone.name} halt")
   new_resource.updated_by_last_action(true)
 end
 
 def do_uninstall
   Chef::Log.info("Uninstalling zone #{@zone.name}")
-  system("zoneadm -z #{@zone.name} uninstall -F")
+  shell_out!("zoneadm -z #{@zone.name} uninstall -F")
   new_resource.updated_by_last_action(true)
 end
