@@ -8,6 +8,7 @@ attribute :limitpriv, :kind_of => String, :default => nil
 attribute :iptype, :kind_of => String, :equal_to => [ "shared", "exclusive"], :default => "shared"
 attribute :nets, :kind_of => Array, :default => []
 attribute :datasets, :kind_of => Array, :default => []
+attribute :loopbacks, :kind_of => Array, :default => []
 attribute :inherits, :kind_of => Array, :default => [ "/lib", "/platform", "/sbin", "/usr" ]
 attribute :password, :kind_of => String
 attribute :use_sysidcfg, :kind_of => [TrueClass, FalseClass], :default => true

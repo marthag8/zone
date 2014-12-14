@@ -48,6 +48,7 @@ For the zones:
     iptype            - "shared" (default) or "exclusive".
     nets              - Array of network interfaces to add.  Interfaces must be in the format of "address:physical(:defrouter)
     datasets          - Array of datasets to include on this zone.
+    loopbacks         - Array of loopback file systems to export from global to this zone
     inherits          - Array of inherit-pkg-dir directories. These cannot be changed after the zone is installed. Defaults to [ "/lib", "/platform", "/sbin", "/usr" ].
     password          - Root password for the zone, to put in /etc/sysidcfg.  Must be encyrpted with crypt.
     use_sysidcfg      - Whether or not to create a sysidcfg file. Defaults to true.
@@ -68,15 +69,16 @@ Usage
       nets [ "192.168.0.2/24:e1000g0:192.168.0.1" ]
       inherits ["/lib", "/bin", "/opt"]
     end
-  
+
     zone "test2" do
       action :start
       clone "test"
       autoboot "false"
       path "/zones/test2"
       datasets [ "zones/test/mysql_data" ]
+      loopbacks [ "/shared" ]
     end
-  
+
 
 ### Actions
 

@@ -5,7 +5,7 @@ def load_current_resource
   @zone.name(new_resource.name)
   @zone.clone(new_resource.clone)
   @managed_props = %w(path autoboot limitpriv iptype)
-  @special_props = %w(dataset inherit-pkg-dir net)
+  @special_props = %w(dataset inherit-pkg-dir net fs)
 
   @zone.password(new_resource.password)
   @zone.use_sysidcfg(new_resource.use_sysidcfg)
@@ -14,7 +14,7 @@ def load_current_resource
 
   @zone.status(status?)
   @zone.state(state?)
-  
+
   @zone.info(info?)
   @zone.current_props(current_props?)
   @zone.desired_props(desired_props?)
@@ -38,7 +38,7 @@ action :install do # ~FC017
       source zone.sysidcfg_template
       variables(:zone => zone)
     end
-  end  
+  end
 end
 
 action :start do # ~FC017
@@ -105,11 +105,11 @@ def current_props?
     if @special_props.include?(settings[0])
       header = settings[0]
       prop_hash[header] ||= []
-    else 
+    else
       second_level = settings[0].split("\t")
       unless second_level[0] == ""
-        prop_hash[second_level[0]] = settings[1] 
-      else 
+        prop_hash[second_level[0]] = settings[1]
+      else
         # special case for network settings.
         # build them into the format we use: address:physical(:defrouter)
         if header == "net"
@@ -123,6 +123,11 @@ def current_props?
             prop_hash[header].push(addr)
           when "defrouter not specified"
             prop_hash[header].push(addr)
+          end
+        # Special case for fs settings since we only care about mount point
+        elsif header == "fs"
+          if second_level[1] == "dir"
+            prop_hash[header].push(settings[1])
           end
         else
           prop_hash[header].push(settings[1])
@@ -158,6 +163,7 @@ def desired_props?
   prop_hash["dataset"] = new_resource.send("datasets").sort
   prop_hash["inherit-pkg-dir"] = new_resource.send("inherits").sort
   prop_hash["net"] = new_resource.send("nets").sort
+  prop_hash["fs"] = new_resource.send("loopbacks").sort
 
   prop_hash
 end
@@ -183,6 +189,8 @@ def do_configure
       name_string = "name"
     when "net"
       name_string = "address"
+    when "fs"
+      name_string = "dir"
     end
     unless @zone.current_props[prop].sort == @zone.desired_props[prop]
       # values to be removed
@@ -202,6 +210,8 @@ def do_configure
         if prop == "net"
           net_array = value.split(':')
           shell_out!("zonecfg -z  #{@zone.name} \"add #{prop}; set #{name_string}=#{net_array[0]};set physical=#{net_array[1]};#{net_array[2].nil? ? "" : "set defrouter="+net_array[2]+";"}end\"")
+        elsif prop == "fs"
+          shell_out!("zonecfg -z  #{@zone.name} \"add #{prop}; set #{name_string}=#{value}; set special=#{value}; set type=lofs; add options [ro,nodevices]; end\"")
         else
           shell_out!("zonecfg -z  #{@zone.name} \"add #{prop}; set #{name_string}=#{value};end\"")
         end
@@ -215,10 +225,10 @@ def do_create
   Chef::Log.info("Configuring zone #{@zone.name}")
   shell_out!("zonecfg -z #{@zone.name} \"create;set zonepath=#{@zone.desired_props["zonepath"]};commit\"")
   new_resource.updated_by_last_action(true)
-  
+
   # update properties for new zone
   @zone.info(info?)
-  @zone.current_props(current_props?) 
+  @zone.current_props(current_props?)
 end
 
 def do_install
@@ -231,7 +241,7 @@ def do_install
     shell_out!("zoneadm -z #{@zone.name} clone #{@zone.clone}")
     new_resource.updated_by_last_action(true)
   end
-  
+
   if @zone.copy_sshd_config
     execute "cp /etc/ssh/sshd_config #{@zone.desired_props["zonepath"]}/root/etc/ssh/sshd_config"
   end
