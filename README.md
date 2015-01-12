@@ -43,40 +43,40 @@ For the zones:
 
     path              - Required.  The path of the zone's filesystem.
     clone             - If set, the name of the zone you want to clone the new zone from.  That zone must be installed and not running.
-    autoboot          - "true" (default) or "false".  Must be a string, not a boolean.
+    autoboot          - 'true' (default) or 'false'.  Must be a string, not a boolean.
     limitpriv         -  String containing set of privileges for the zone.
-    iptype            - "shared" (default) or "exclusive".
-    nets              - Array of network interfaces to add.  Interfaces must be in the format of "address:physical(:defrouter)
+    iptype            - 'shared' (default) or 'exclusive'.
+    nets              - Array of network interfaces to add.  Interfaces must be in the format of 'address:physical(:defrouter)
     datasets          - Array of datasets to include on this zone.
     loopbacks         - Array of loopback file systems to export from global to this zone
-    inherits          - Array of inherit-pkg-dir directories. These cannot be changed after the zone is installed. Defaults to [ "/lib", "/platform", "/sbin", "/usr" ].
+    inherits          - Array of inherit-pkg-dir directories. These cannot be changed after the zone is installed. Defaults to [ '/lib', '/platform', '/sbin', '/usr' ].
     password          - Root password for the zone, to put in /etc/sysidcfg.  Must be encyrpted with crypt.
     use_sysidcfg      - Whether or not to create a sysidcfg file. Defaults to true.
-    sysidcfg_template - Template name to use for /etc/sysidcfg.  Defaults to "sysidcfg.erb"
+    sysidcfg_template - Template name to use for /etc/sysidcfg.  Defaults to 'sysidcfg.erb'
     copy_ssd_config   - Whether or not to copy /etc/ssh/sshd_config from the global zone to the new zone when the zone is created.  Defaults to true.
 
 
 Usage
 =====
 
-    zone "test" do
+    zone 'test' do
       action :install
-      path "/opt/zones/test"
-      limitpriv "default,dtrace_proc,dtrace_user"
-      password "whbFxl4vH5guE"
-      sysidcfg_template "my_sysidcfg.erb"
+      path '/opt/zones/test'
+      limitpriv 'default,dtrace_proc,dtrace_user'
+      password 'whbFxl4vH5guE'
+      sysidcfg_template 'my_sysidcfg.erb'
       copy_sshd_config false
-      nets [ "192.168.0.2/24:e1000g0:192.168.0.1" ]
-      inherits ["/lib", "/bin", "/opt"]
+      nets [ '192.168.0.2/24:e1000g0:192.168.0.1' ]
+      inherits ['/lib', '/bin', '/opt']
     end
 
-    zone "test2" do
+    zone 'test2' do
       action :start
-      clone "test"
-      autoboot "false"
-      path "/zones/test2"
-      datasets [ "zones/test/mysql_data" ]
-      loopbacks [ "/shared" ]
+      clone 'test'
+      autoboot 'false'
+      path '/zones/test2'
+      datasets [ 'zones/test/mysql_data' ]
+      loopbacks [ '/shared' ]
     end
 
 

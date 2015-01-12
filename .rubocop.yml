@@ -1,0 +1,28 @@
+
+LineLength:
+  Max: 999
+
+TrailingComma:
+  EnforcedStyleForMultiline: comma
+
+SingleSpaceBeforeFirstArg:
+  Enabled: false
+
+ClassLength:
+  Max: 300
+
+MethodLength:
+  Max: 50
+
+# CyclomaticComplexity:
+#   Enabled: false
+
+# PerceivedComplexity:
+#   Enabled: false
+
+# AbcSize:
+#   Enabled: false
+
+BlockNesting:
+  Max: 4
+
